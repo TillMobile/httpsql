@@ -1,4 +1,8 @@
-## Quickstart
+```
+Warning: This is an active WIP. Proceed with caution!
+```
+
+## API Quickstart
 
 Create your `.env` file with a few variables:
 - `DB_DATABASE`
@@ -16,11 +20,12 @@ Create and source a fresh virtualenv:
 - `virtualenv venv`
 - `source venv/bin/activate`
 
-Install dependencies:
-- `pip install -r requirements.txt`
+Install:
+- `pip install https://github.com/TillMobile/httpsql/zipball/master/`
 
-Start gunicorn:
-- `gunicorn api:app`
+Start gunicorn (or your favorite WSGI server):
+- `pip install gunicorn`
+- `gunicorn httpsql.api:app`
 - http://localhost:8000/
 
 ## Using the client
