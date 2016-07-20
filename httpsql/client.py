@@ -36,12 +36,18 @@ session = requests.Session()
 
 def send_req(method, path, body=None):
     url = "%s/%s" % (HTTP_ENDPOINT, path)
+    kwargs = {
+        "json" : body if body else "",
+        "verify" : False
+    }
+
+    if HTTP_USER and HTTP_PASS:
+        kwargs["auth"] = HTTPBasicAuth(HTTP_USER, HTTP_PASS)
+    
     resp = session.request(
         method, 
         url,
-        json=body if body else "",
-        auth=HTTPBasicAuth(HTTP_USER, HTTP_PASS),
-        verify=False
+        **kwargs
     )
 
     if resp.status_code == 400:
@@ -60,7 +66,7 @@ def send_req(method, path, body=None):
 
 class Function(object):
     def __init__(self):
-        self.methods = ["execute"]
+        self.methods = ["call"]
         self.definition = send_req("GET", "/function/")
     
     def __getattr__(self, func):
@@ -73,9 +79,9 @@ class Function(object):
             raise NotFoundError("Invalid function or method")
     
     def describe(self):
-        print json.dumps(self.definition[self.name], indent=4, sort_keys=True)            
+        return self.definition[self.name]
 
-    def execute(self, **kwargs):
+    def call(self, **kwargs):
         args = "&".join(["%s=%s" % (arg, kwargs[arg]) for arg in kwargs])
         return send_req("GET", "/function/%s/%s" % (
             self.name, 
@@ -84,7 +90,7 @@ class Function(object):
 
 class Collection(object):
     def __init__(self):
-        self.methods = ["all", "get", "delete", "save", "count"]
+        self.methods = ["filter", "get", "delete", "save", "count"]
         self.definition = send_req("GET", "/collection/")
     
     def __getattr__(self, func):
@@ -97,7 +103,7 @@ class Collection(object):
             raise NotFoundError("Invalid collection or method")
 
     def describe(self):
-        print json.dumps(self.definition[self.name], indent=4, sort_keys=True)
+        return self.definition[self.name]
 
     def get(self, pk):
         return send_req("GET", "/collection/%s/%s" % (self.name, pk))

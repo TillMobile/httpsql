@@ -22,14 +22,14 @@ import query_gen
 def json_serializer(req, exception):
     return ("application/json", exception.to_json())
 
-def unix_timestamp_json_serializer(obj):
+def iso_8601_json_serializer(obj):
     if isinstance(obj, datetime.datetime):
-        return time.mktime(obj.timetuple())
+        return obj.isoformat()
     raise TypeError ("Type not serializable")
 
 def to_json(obj):
     try:
-        return json.dumps(obj, default=unix_timestamp_json_serializer)
+        return json.dumps(obj, default=iso_8601_json_serializer)
     except Exception, e:
         raise_internal_error("Could not serialize")
 
