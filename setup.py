@@ -16,6 +16,7 @@ VERSION = VERSION.__version__
 REQUIRES = [
   "Cython==0.24",
   "psycopg2==2.6.1",
+  "falcon==0.3.0",
   "python-mimeparse==1.5.2",
   "six==1.10.0",
   "requests==2.10.0"
