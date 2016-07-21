@@ -13,8 +13,8 @@ printf "export DB_USER='${DC_USER}'\n" >> /opt/.env
 printf "export DB_PASSWORD='${DC_PASSWORD}'\n" >> /opt/.env
 printf "export DB_HOST='127.0.0.1'\n" >> /opt/.env
 printf "export DB_PORT=5432\n" >> /opt/.env
-printf "export DB_POOL_MIN=5\n" >> /opt/.env
-printf "export DB_POOL_MAX=25\n" >> /opt/.env
+printf "export DB_CONNECTION_POOL_MIN=5\n" >> /opt/.env
+printf "export DB_CONNECTION_POOL_MAX=25\n" >> /opt/.env
 printf "export API_DEFAULT_COLLECTION_ROW_LIMIT=25\n" >> /opt/.env
 
 # Setup DB as
