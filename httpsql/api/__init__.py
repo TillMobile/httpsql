@@ -55,7 +55,7 @@ def is_int(s):
 ###################################################################################################
 
 def wait_for_schema():
-    while not schema.SCHEMA or not schema.FUNCTIONS:
+    while schema.SCHEMA == None or schema.FUNCTIONS == None:
         time.sleep(0.5)
 
 ###################################################################################################
@@ -174,9 +174,7 @@ def insert_table_rows(conn, table, objs):
         copy_stmt, insert_buffer = query_gen.insert_table_rows_query(table, objs)
         with conn.cursor() as c:
             c.copy_expert(copy_stmt, insert_buffer)
-            rows = db.dictfetchall(c)
-            if len(rows) > 0:
-                return rows              
+            return []
     except (query_gen.QueryGenError, psycopg2.DataError, psycopg2.IntegrityError), e:
         raise_bad_request(str(e))
     except Exception, e:
@@ -246,7 +244,9 @@ class CollectionSchemaResource(object):
 class FunctionResource(object):
   def on_get(self, req, resp, object_name):
         wait_for_schema()
-        args = {x:req.params[x] for x in req.params if x in schema.FUNCTIONS[object_name]["parameters"]}
+        args = {x:req.params[x] 
+                for x in req.params 
+                if object_name in schema.FUNCTIONS and x in schema.FUNCTIONS[object_name]["parameters"]}
         check_function(object_name, args)
         limit, offset = check_pagination(req)
         with db.conn() as conn:

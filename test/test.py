@@ -48,7 +48,8 @@ class TestAPI(unittest.TestCase):
         return requests.get("%s/%s/%s%s" % (self.API_URL, path, pk if pk else "", qs if qs else ""))
 
     def insert(self, path, _dict):
-        return requests.put("%s/%s" % (self.API_URL, path), json=_dict)
+        url = "%s/%s" % (self.API_URL, path)
+        return requests.put(url, json=_dict)
 
     def update(self, path, _id, _dict):
         return requests.post("%s/%s/%s" % (self.API_URL, path, _id), json=_dict)
@@ -81,7 +82,6 @@ class TestAPI(unittest.TestCase):
 
         # Single entity
         r = self.insert("collection/item", self.ITEM_DICT)
-        print r.text
         self.assertEqual(r.status_code, 204)
 
         r = self.get("collection/item")
@@ -89,11 +89,12 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(len(r.content) > 0)
 
         rlist = r.json()
+
         self.assertTrue(len(rlist) == 1)
         rdict = rlist[0]
         self.assertTrue(rdict["id"], 1)
         self.assertTrue("id" in rdict)
-        self.assert_item_dicts_equal(rdict[0], self.ITEM_DICT)
+        self.assert_item_dicts_equal(rdict, self.ITEM_DICT)
 
         # Multiple entities
         r = self.insert("collection/item", [self.ITEM_DICT, self.ITEM_DICT, self.ITEM_DICT])
@@ -117,8 +118,9 @@ class TestAPI(unittest.TestCase):
         r = self.get("collection/item/1")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(len(r.content) > 0)
-        rdict = r.json()
-        self.assert_item_dicts_equal(rdict[0], self.ITEM_DICT)
+        rlist = r.json()
+        rdict = rlist[0]
+        self.assert_item_dicts_equal(rdict, self.ITEM_DICT)
 
         rdict["name"] = "Shoe Y"
         rdict["attributes"]["size"] = "XM"
@@ -128,8 +130,9 @@ class TestAPI(unittest.TestCase):
         r = self.get("collection/item/1")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(len(r.content) > 0)
-        ndict = r.json()
-        self.assert_item_dicts_equal(rdict[0], ndict)
+        nlist = r.json()
+        ndict = nlist[0]
+        self.assert_item_dicts_equal(rdict, ndict)
 
     def test_collection_get(self):
         """
@@ -164,7 +167,7 @@ class TestAPI(unittest.TestCase):
         r = self.get("collection/item")
         rlist = r.json()
         for rdict in rlist:
-            self.assert_item_dicts_equal(rdict[0], self.ITEM_DICT)
+            self.assert_item_dicts_equal(rdict, self.ITEM_DICT)
 
         # Limit and offset
         r = self.insert("collection/item", [self.ITEM_DICT, self.ITEM_DICT, self.ITEM_DICT])
@@ -296,7 +299,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(r.status_code, 204)
         r = self.get("collection/item")
         rlist = r.json()
-        self.assertEqual(len(rlist), ROW_LIMIT)
+        self.assertEqual(int(len(rlist)), int(ROW_LIMIT))
 
 if __name__ == '__main__':
     unittest.main()
