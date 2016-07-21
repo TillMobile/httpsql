@@ -30,6 +30,3 @@ sudo -u postgres psql -c "ALTER DATABASE ${DC_DATABASE} OWNER to ${DC_USER};"
 # Setup Application Environment
 cd /opt/
 virtualenv venv
-source venv/bin/activate
-python setup.py install
-pip install gunicorn

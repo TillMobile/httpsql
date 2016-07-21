@@ -33,14 +33,17 @@ def release_conn(conn):
         DB_POOL.putconn(conn)
 
 def dictfetchall(c):
-    cols = [desc[0] for desc in c.description]
-    len_cols = len(cols)
     rows = []
-    for r in c:
-        row = {}
-        for x in range(len_cols):
-            row[cols[x]] = r[x]
-        rows.append(row)
+    if c:
+        if c.rowcount > 0:
+            if c.description:
+                cols = [desc[0] for desc in c.description]
+                len_cols = len(cols)
+            for r in c:
+                row = {}
+                for x in range(len_cols):
+                    row[cols[x]] = r[x]
+                rows.append(row)
     return rows
 
 class conn:

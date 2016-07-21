@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 cd /opt/
+source venv/bin/activate
+python setup.py install
+pip install gunicorn
 
 # Set ENV
 . .env
@@ -9,7 +12,6 @@ cd /opt/
 sudo service postgresql start
 
 # Start the WSGI server
-source venv/bin/activate
 nohup gunicorn httpsql.api:app --bind=127.0.0.1:8000 &
 
 # Load fixture data
