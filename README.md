@@ -28,8 +28,6 @@ Start gunicorn (or your favorite WSGI server):
 - `gunicorn httpsql.api:app`
 - http://localhost:8000/
 
-```
-
 ## Usage via HTTP(S)
 
 ### Schema
