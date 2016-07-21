@@ -16,6 +16,10 @@ FUNCTIONS = None
 PKS       = None
 
 def get_schema(conn):
+    functions = collections.OrderedDict()
+    schema = collections.OrderedDict()    
+    pks = {}
+
     with conn.cursor() as c:
         c.execute("""
         select
@@ -32,6 +36,7 @@ def get_schema(conn):
             where i.indrelid = x.table_name::regclass
             and a.attname = x.column_name
             and i.indisprimary
+            limit 1
         )
         as is_primary_key,
         (
@@ -46,6 +51,7 @@ def get_schema(conn):
             from information_schema.role_table_grants 
             where grantee = %s
             and table_name = x.table_name
+            limit 1
         ) as methods,
         obj_description(x.table_name::regclass, 'pg_class') as table_comments
         from information_schema.columns x
@@ -62,8 +68,6 @@ def get_schema(conn):
         order by table_name
         """, (settings.DB_USER, settings.DB_DATABASE, settings.DB_SCHEMA, settings.DB_USER))
 
-        pks = {}
-        schema = collections.OrderedDict()
         for r in c:
             obj       = r[0]
             column    = r[1]
@@ -104,6 +108,7 @@ def get_schema(conn):
             INNER JOIN pg_namespace n ON n.oid = p.pronamespace
             LEFT JOIN pg_description As d ON (d.objoid = p.oid )
             WHERE  p.proname = routines.routine_name
+            limit 1
         ) as routine_comments
         from information_schema.routines
         full outer join information_schema.parameters
@@ -118,8 +123,7 @@ def get_schema(conn):
         )
         order by routines.routine_name, parameters.ordinal_position;
         """, [settings.DB_SCHEMA, settings.DB_USER])
-        
-        functions = collections.OrderedDict()
+
         for r in c:
             routine_name, routine_data_type, parameter_name, parameter_data_type, routine_comments = r
             if routine_name in functions:

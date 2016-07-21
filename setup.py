@@ -1,4 +1,3 @@
-import glob
 import imp
 import io
 import os
@@ -49,7 +48,7 @@ setup(
     keywords='web api rest http cloud db postgresql',
     url='https://github.com/TillMobile/httpsql',
     license='Mozilla Public License Version 2.0',
-    packages=find_packages(),
+    packages=find_packages(exclude=('test', )),
     include_package_data=True,
     zip_safe=False,
     install_requires=REQUIRES,
