@@ -1,0 +1,11 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker build -t tillmobileinc/httpsql-test .
+
+test:
+  override:
+    - docker run -it tillmobileinc/httpsql-test /opt/test/scripts/test.sh

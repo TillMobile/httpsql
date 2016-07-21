@@ -28,7 +28,197 @@ Start gunicorn (or your favorite WSGI server):
 - `gunicorn httpsql.api:app`
 - http://localhost:8000/
 
-## Using the client
+```
+
+## Usage via HTTP(S)
+
+### Schema
+Retrieve the list of available collections and functions. Each collection lists its fields and their data types. Each function lists it's return type and parmaters.
+
+GET `/`
+
+```
+{
+  "functions": {
+    "items_by_size": {
+      "type": "item", 
+      "parameters": {
+        "t_size": "string"
+      }
+    }
+  }, 
+  "collections": {
+    "item": {
+      "attributes": {
+        "read_only": false, 
+        "is_pk": null, 
+        "type": "map"
+      }, 
+      "description": {
+        "read_only": false, 
+        "is_pk": null, 
+        "type": "string"
+      }, 
+      "id": {
+        "read_only": false, 
+        "is_pk": true, 
+        "type": "number"
+      }, 
+      "name": {
+        "read_only": false, 
+        "is_pk": null, 
+        "type": "string"
+      }
+    }
+  }
+}
+```
+
+### Insert
+Insert records that conform to the defined schema.
+
+PUT `/collection/{collection}/`
+
+Single record body JSON
+```
+{
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}
+```
+
+Multiple record body JSON
+```
+[{
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}]
+```
+
+### Update
+Update an existing record.
+
+POST `/collection/{collection}/{pk}`
+
+Single record body JSON
+```
+{
+  "id" : 1, // optional
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}
+```
+
+### Delete
+Delete an existing record.
+
+DELETE `/collection/{collection}/{pk}`
+
+### Retrieve by Primary Key
+Retrieve a record from a collection by primary key.
+
+GET `/collection/{collection}/{pk}`
+
+Response JSON
+```
+{
+  "id" : 1,
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}
+
+```
+
+### Retrieve by Query
+Retrieve a list of records by query.
+
+GET `/collection/{collection}/?{query}&order_by={order_by}&offset={offset}&limit={limit}`
+
+Response JSON
+```
+[{
+  "id" : 1,
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}]
+```
+
+Available query operators:
+- `lt` (Less than)
+- `lte` (Less than or equal)
+- `gt` (Greater than)
+- `gte` (Greater than or equal)
+- `exact` (Equal)
+- `contains` (Like)
+
+Query examples:
+- `name__exact=Shoe X`
+- `attributes.weight__lte=5`
+- `description__exact=name`
+
+Order by examples:
+- `id` order by id ascending
+- `-id` order by id descending
+
+Offset example:
+- `1`
+
+Limit example:
+- `20`
+
+
+### Row Count 
+Retrieve the row count for the passed collection.
+
+GET `/collection/{collection}/count?{query}`
+
+Response JSON
+```
+{
+  "count" : 1
+}
+```
+
+### Retrieve by Function
+Retrieve records by calling a function. Note: the parameters passed must match the function's schema. To function properly the return type of the function must match an a collection defined in the schema.  
+
+
+GET `/function/{function}/?{parameters}`
+
+Response JSON
+```
+[{
+  "id" : 1,
+  "name" : "Shoe X",
+  "description" : "Awesome shoe",
+  "attributes" : {
+    "weight" : 0,
+    "size" : "XL"
+  }
+}]
+```
+
+## Usage via client `client`
 
 ```
 from httpsql import client
@@ -70,3 +260,5 @@ client.function.func_name.call(param1=1, param2="asd")
 ...
 
 ```
+
+
