@@ -122,7 +122,7 @@ def insert_table_row_query(table, _dict):
     _dict = hstorify(_dict)
     values = ",".join(["%s" for x in _dict])
     columns = ",".join(["%s" % x for x in _dict])
-    return "insert into %s (%s) values(%s) returning %s" % (table, columns, values, PKS[table])
+    return "insert into %s (%s) values(%s) returning %s" % (table, columns, values, schema.PKS[table])
 
 def insert_table_rows_query(table, _list):
     _dict = _list[0]
