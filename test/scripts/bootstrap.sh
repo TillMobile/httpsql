@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Clean up env
+cd /opt/
+rm -rf venv
+rm .env
+
 # Setup Environment
 DC_DATABASE=till`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
 DC_USER=till`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
@@ -29,6 +34,4 @@ sudo -u postgres psql -c "ALTER DATABASE ${DC_DATABASE} OWNER to ${DC_USER};"
 
 # Setup Application Environment
 cd /opt/
-rm -rf venv
-rm .env
 virtualenv venv
