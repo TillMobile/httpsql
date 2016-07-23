@@ -355,7 +355,7 @@ class TestAPI(unittest.TestCase):
         rlist = r.json()
         self.assertEqual(len(rlist), 1)
         rdict = rlist[0]
-        rdict["v"]["a"] = "XXX"
+        rdict["v"]["a"] = "XYZ"
         r = self.update("collection/supported_types", 1, rdict)
         self.assertEqual(r.status_code, 200, r.text)
         rlist = r.json()
