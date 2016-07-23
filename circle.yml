@@ -9,3 +9,5 @@ dependencies:
 test:
   override:
     - docker run -it httpsql-test /opt/test/scripts/test.sh
+  post:
+    - bash <(curl -s https://codecov.io/bash)
