@@ -60,27 +60,28 @@ def get_filtered_rows_query(table, filters, limit=None, offset=None, order=None)
         if len(chunks) != 2:
             continue
         column = chunks[0]
-        # Don't allow comparisons to map parents
-        if column in columns and  \
-           columns[column] == "map":
-            continue        
         operator = chunks[1]
-        # Must be a valid operator
-        if operator not in operator_map:
-            raise QueryGenError("Bad operator for filter. Valid operators are: %s" %  ", ".join(operator_map.keys()))
+
         # Dot syntax for drilling into hstore columns with operators
         is_map_ref = column.find(".") >= 0
         if is_map_ref:
             column_chunks = column.split(".")
-            column_ref = "%s->'%s'" % (column_chunks[0], column_chunks[1])
             column = column_chunks[0]
+            # Should work for both hstore and jsonb
+            op = "->" if columns[column] == HSTORE_TYPE else "->>"
+            column_ref = "%s%s'%s'" % (column_chunks[0], op, column_chunks[1])
         else:
-            column_ref = column
+            column_ref = column        
+        
+        # Must be a valid operator
+        if operator not in operator_map:
+            raise QueryGenError("Bad operator for filter. Valid operators are: %s" %  ", ".join(operator_map.keys()))
         # Must be a column that exists in the schema
         if column not in columns:
             raise QueryGenError("Invalid field. Valid fields are: %s" % ", ".join(columns.keys()))
         # No dot syntax for non map type's columns
-        if columns[column] != "map" and is_map_ref:
+        if columns[column] not in (HSTORE_TYPE, JSON_TYPE) and is_map_ref:
+            print column
             continue
         val = filters[f]
         val_is_column = val in columns

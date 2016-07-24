@@ -242,10 +242,11 @@ class TestAPI(unittest.TestCase):
         rlist = r.json()
         self.assertTrue(rlist[0]["id"] != 1)
 
-        # Nested hstore query
+        # Dot syntax for hstore query
         r = self.get("collection/item", None, "?attributes.weight__lt=1")
+        self.assertTrue(r.status_code == 200, r.text)
         rlist = r.json()
-        self.assertTrue(len(rlist) > 1)
+        self.assertTrue(len(rlist) > 1, r.text)
         self.assert_item_dicts_equal(rlist[0], self.ITEM_DICT)
 
         # Bogus field
@@ -279,13 +280,13 @@ class TestAPI(unittest.TestCase):
 
         # Retrieve single collection instance
         r = self.insert("collection/item", self.ITEM_DICT)
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 204, r.text)
 
         r = self.delete("collection/item/1")
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 204, r.text)
 
         r = self.get("collection/item/count")
-        self.assertTrue(r.status_code == 200)
+        self.assertTrue(r.status_code == 200, r.text)
         rdict = r.json()
         self.assertTrue(rdict["count"] == 0)
 
@@ -329,6 +330,10 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(int(len(rlist)), int(ROW_LIMIT))
 
     def test_types(self):
+        """ 
+        Make sure we can insert a single record with all supported types.
+        """
+
         r = self.insert("collection/supported_types", self.TYPE_RECORD)
         self.assertEqual(r.status_code, 204)
         r = self.get("collection/supported_types")
@@ -338,6 +343,10 @@ class TestAPI(unittest.TestCase):
         rdict = rlist[0]
 
     def test_types_multiple_inserts(self):
+        """
+        Ensure multi-insert i.e. COPY works with all supported types.
+        """
+
         record2 = self.TYPE_RECORD.copy()
         record2["a"] = 23
         r = self.insert("collection/supported_types", [self.TYPE_RECORD, record2])
@@ -347,7 +356,11 @@ class TestAPI(unittest.TestCase):
         rlist = r.json()
         self.assertEqual(len(rlist), 2)
 
-    def test_update_jsonb(self):
+    def test_types_update(self):
+        """
+        Ensure we can update supported types.
+        """
+
         r = self.insert("collection/supported_types", self.TYPE_RECORD)
         self.assertEqual(r.status_code, 204, r.text)
         r = self.get("collection/supported_types")
@@ -362,10 +375,20 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(rlist[0], rdict)
 
     def test_jsonb_query(self):
-        pass
+        """
+        Ensure dot syntax works for jsonb data type. 
+        Note: nested dot syntax not implemented (yet)
+        """
 
-    def test_hstore_query(self):
-        pass
+        record2 = self.TYPE_RECORD.copy()
+        record2["v"] = {"a" : 77}
+        r = self.insert("collection/supported_types", record2)
+        self.assertEqual(r.status_code, 204, r.text)
+        r = self.get("collection/supported_types", None, "?v.a__exact=77")
+        self.assertEqual(r.status_code, 200, r.text)
+        rlist = r.json()
+        self.assertEqual(len(rlist), 1)
+        rdict = rlist[0]
 
     def test_binary_comparison_query(self):
         pass
