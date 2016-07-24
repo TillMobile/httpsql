@@ -277,17 +277,11 @@ class SchemaResource(object):
         resp.status = falcon.HTTP_200
 
 class FunctionSchemaResource(object):
-    def handle(self, req, resp):
+    def on_get(self, req, resp):
         check_db()
         check_schema()    
         resp.body = to_json(schema.FUNCTIONS)
-        resp.status = falcon.HTTP_200        
-
-    def on_get(self, req, resp):
-        self.handle(req, resp)
-
-    def on_post(self, req, resp):
-        self.handle(req, resp)
+        resp.status = falcon.HTTP_200
 
 class CollectionSchemaResource(object):
     def on_get(self, req, resp):
@@ -297,7 +291,7 @@ class CollectionSchemaResource(object):
         resp.status = falcon.HTTP_200
 
 class FunctionResource(object):
-    def on_get(self, req, resp, object_name):
+    def handle(self, req, resp, object_name):
         check_db()
         check_schema()
         args = {x:req.params[x] 
@@ -309,6 +303,12 @@ class FunctionResource(object):
             order_by = check_order_by(schema.SCHEMA[schema.FUNCTIONS[object_name]["type"]], req)
             resp.body = to_json(get_function_rows(conn, object_name, args, limit, offset, order_by))
             resp.status = falcon.HTTP_200
+
+    def on_get(self, req, resp, object_name):
+        self.handle(req, resp, object_name)            
+
+    def on_post(self, req, resp, object_name):
+        self.handle(req, resp, object_name)
 
 class CountResource(object):
     def on_get(self, req, resp, object_name):
