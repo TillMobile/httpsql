@@ -170,27 +170,27 @@ class TestAPI(unittest.TestCase):
 
         # Retrieve single collection instance
         r = self.insert("collection/item", self.ITEM_DICT)
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 204, r.text)
         r = self.get("collection/item/1")
-        self.assertEqual(r.status_code, 200)
-        self.assertTrue(len(r.content) > 0)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertTrue(len(r.content) > 0, r.content)
         rdict = r.json()
         self.assert_item_dicts_equal(rdict[0], self.ITEM_DICT)
 
         # Invalid pk
         r = self.get("collection/item/44")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 404, r.text)
 
         r = self.get("collection/item/asdasd")
-        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.status_code, 400, r.text)
 
         # Invalid collection
         r = self.get("collection/cars/1")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 404, r.text)
 
         # Retrieve multiple collection instances
         r = self.insert("collection/item", [self.ITEM_DICT, self.ITEM_DICT, self.ITEM_DICT])
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 204, r.text)
         r = self.get("collection/item")
         rlist = r.json()
         for rdict in rlist:
@@ -198,7 +198,7 @@ class TestAPI(unittest.TestCase):
 
         # Limit and offset
         r = self.insert("collection/item", [self.ITEM_DICT, self.ITEM_DICT, self.ITEM_DICT])
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 204, r.text)
         r = self.get("collection/item", None, "?limit=2&offset=1")
         rlist = r.json()
         self.assertTrue(len(rlist) == 2)

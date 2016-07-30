@@ -132,7 +132,7 @@ def insert_table_row_query(table, _dict):
     values = ",".join(["%s" for x in _dict])
     columns = ",".join(["%s" % x for x in _dict])
     if table in schema.PKS:
-        returning = "returning %s" % schema.PKS[table]
+        returning = "returning *" # % schema.PKS[table]
     else:
         returning = ""
     return "insert into %s (%s) values(%s) %s" % (table, columns, values, returning)
@@ -181,4 +181,4 @@ def insert_table_rows_query(table, _list):
 
 def update_table_row_query(pk_lookup, table, _dict):
     sets = ",".join(["%s = %%s" % x for x in _dict])
-    return "update %s set %s where %s = %%s returning %s" % (table, sets, pk_lookup[table], pk_lookup[table])
+    return "update %s set %s where %s = %%s returning *" % (table, sets, pk_lookup[table])

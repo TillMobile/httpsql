@@ -189,14 +189,8 @@ def insert_table_row(conn, table, obj):
         log.debug(params)        
         with conn.cursor() as c:
             c.execute(query, params)
-            try:
-                rows = db.dictfetchall(c)
-                if len(rows) > 0:
-                    return rows
-                else:
-                    return []
-            except:
-                pass
+            val = c.fetchone()[0]
+            return val
     except (query_gen.QueryGenError, psycopg2.DataError, psycopg2.IntegrityError), e:
         raise_bad_request(str(e))
     except Exception, e:
@@ -223,14 +217,9 @@ def update_table_row(conn, table, pk, obj):
         log.debug(params)        
         with conn.cursor() as c:
             c.execute(query, params)
-            try:
-                rows = db.dictfetchall(c)
-                if len(rows) > 0:
-                    return rows            
-                else:
-                    return []
-            except:
-                pass
+            result = c.fetchone()
+            if len(result) > 0:
+                return {schema.PKS[table] : result[0]}
     except (query_gen.QueryGenError, psycopg2.DataError, psycopg2.IntegrityError), e:
         raise_bad_request(str(e))
     except Exception, e:
@@ -337,7 +326,10 @@ class MultiResource(object):
         with db.conn() as conn:
             objs = from_json(req.stream.read())
             if not isinstance(objs, list):
-                resp.body = to_json(insert_table_row(conn, object_name, objs))
+                t_resp = to_json(insert_table_row(conn, object_name, objs))
+                log.debug(t_resp)
+                resp.body = t_resp
+
             else:
                 resp.body = to_json(insert_table_rows(conn, object_name, objs))
             resp.status = falcon.HTTP_204
