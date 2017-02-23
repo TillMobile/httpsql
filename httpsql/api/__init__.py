@@ -14,6 +14,7 @@ import settings
 import db
 import schema
 import query_gen
+import auth
 
 from decimal import Decimal
 
@@ -50,7 +51,10 @@ def to_json(obj):
     return json.dumps(obj, default=json_serializer, sort_keys=True)
 
 def from_json(obj):
-    return json.loads(obj)
+    try:
+        return json.loads(obj)
+    except Exception, e:
+        raise_bad_request("Could not decode passed JSON")
 
 ###################################################################################################
 # Fuzzy int match for pagination
@@ -189,8 +193,11 @@ def insert_table_row(conn, table, obj):
         log.debug(params)        
         with conn.cursor() as c:
             c.execute(query, params)
-            val = c.fetchone()[0]
-            return val
+            try:
+                val = c.fetchone()[0]
+                return val
+            except:
+                return None
     except (query_gen.QueryGenError, psycopg2.DataError, psycopg2.IntegrityError), e:
         raise_bad_request(str(e))
     except Exception, e:
@@ -376,7 +383,7 @@ class SingleResource(object):
 # Initialize the API
 ###################################################################################################
 
-app = falcon.API()
+app = falcon.API(middleware=[auth.BasicAuthMiddleware()])
 app.set_error_serializer(error_serializer)
 app.add_route('/',                               SchemaResource())
 app.add_route('/function',                       FunctionSchemaResource())
