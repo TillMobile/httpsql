@@ -15,6 +15,8 @@ Create your `.env` file with a few variables:
 - `DB_CONNECTION_POOL_MAX`
 - `API_COLLECTION_ROW_LIMIT` (Optional. Default `25`)
 - `API_LOG_LEVEL` (Optional. Default `INFO`)
+- `BASIC_AUTH_USER` (Optional)
+- `BASIC_AUTH_PASSWORD` (Optional)
 
 Create and source a fresh environment:
 - `virtualenv venv`
