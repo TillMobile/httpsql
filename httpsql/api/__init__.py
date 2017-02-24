@@ -383,7 +383,7 @@ class SingleResource(object):
 # Initialize the API
 ###################################################################################################
 
-app = falcon.API(middleware=[auth.BasicAuthMiddleware()])
+app = falcon.API(middleware=[auth.BasicAuthMiddleware(), auth.TokenAuthMiddleware()])
 app.set_error_serializer(error_serializer)
 app.add_route('/',                               SchemaResource())
 app.add_route('/function',                       FunctionSchemaResource())
